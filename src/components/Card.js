@@ -16,22 +16,25 @@ render(){
     return (
         // <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
         <div className="card">
-        <h1 style={{textAlign:'center'}}>Ce Terminal à permis d'économiser ce mois-ci</h1>
-        <div className="container">
-            <div className="flight">
-            <i className="material-icons">flight</i>
-            <h3>Pour un voyage (Aller/Retour) en avion le taux de CO2 est estimer à : <strong>{precise(this.props.emission.avion)}</strong> tonne de CO2</h3>
-            </div>
-            <hr></hr>
-            <div className="train">
-            <i className="material-icons">train</i>
-            <h3>Pour un voyage (Aller/Retour) en train le taux de CO2 est estimer à : <strong>{precise(this.props.emission.train)}</strong> tonne de CO2</h3>
-            </div>
-            <hr></hr>
+        <h1 style={{textAlign:'center', color:'white'}}>Ce Terminal à permis d'économiser ce mois-ci</h1>
+        <div className="container-card">
             <div className="car">
-            <i className="material-icons">directions_car</i>
-            <h3>Pour un voyage (Aller/Retour) en voiture le taux de CO2 est estimer à : <strong>{precise(this.props.emission.voiture)}</strong> tonne de CO2</h3>
+            <i className="material-icons" style={{alignSelf: "center"}}>directions_car</i>
+            <h3><strong>{precise(this.props.emission.voiture)}</strong>t de CO2</h3>
             </div>
+            
+            <div className="train">
+            <i className="material-icons" style={{alignSelf: "center", color:"teal"}}>train</i>
+            <h3><strong>{precise(this.props.emission.train)}</strong>t de CO2</h3>
+            </div>
+
+            <div className="flight">
+            <i className="material-icons" style={{alignSelf: "center", color:"chocolate"}}>flight</i>
+            <h3><strong>{precise(this.props.emission.avion)}</strong>t de CO2</h3>
+            </div>   
+        </div>
+        <div>
+        <h1 style={{textAlign:'center', color:'white'}}> Et à effectué {this.props.nbCallMonth} appels</h1>
         </div>
         </div>
     );

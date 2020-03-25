@@ -6,6 +6,8 @@ import LineChart from "./Line";
 import Card from "./Card";
 import Donut from "./Donut";
 import A from "./Donut2";
+//import ReactWeather from 'react-open-weather';
+import Weather from "./Weather";
 //const f = require("../db_functions/functions")
 require('dotenv').config();
 
@@ -16,13 +18,30 @@ require('dotenv').config();
 
 
 function getCallsInfo(calls, mac) {
-    let nb_calls = 0;
-    calls.forEach(call => {
-        if(call.codec.macAddress === mac){
-            nb_calls++;   
-        }
-        });
-        return nb_calls;
+  const d = new Date();
+  var currentMonth = d.getMonth();
+  var currentYear = d.getFullYear();
+  let nb_calls = 0;
+  let nb_calls_month = 0;
+  calls.forEach(call => {
+      let perMonth = false;
+      const callDate = new Date(call.callHistory.StartTime);
+      const callMonth = callDate.getMonth();
+      const callYear = callDate.getFullYear();
+      if(callYear === currentYear && callMonth === currentMonth) {
+          perMonth = true;
+      }
+      if(call.codec.macAddress === mac){
+          nb_calls++;
+          if(perMonth){
+            nb_calls_month++;
+          }
+      }
+      });
+      return {
+        nb_calls: nb_calls, 
+        nb_calls_month: nb_calls_month
+      };
 }
 
 var getCallsEmission = function(calls, mac) {
@@ -86,12 +105,14 @@ class Dashboard extends Component {
             error: null,
             items: [],
             nbCalls: 0,
+            nbCalls_month: 0,
             mac: "",
             emission_total: {}
         }
     }
     componentDidMount() {
         console.log(this.props.mac)
+        this.interval = setInterval(() => 
         fetch('http://websrv.ciscofrance.com:15140/api/call',
           {
             method: 'get'
@@ -103,7 +124,8 @@ class Dashboard extends Component {
                 this.setState({
                     isLoaded: true,
                     items: result,
-                    nbCalls: getCallsInfo(result, this.props.mac),
+                    nbCalls: getCallsInfo(result, this.props.mac).nb_calls,
+                    nbCalls_month: getCallsInfo(result, this.props.mac).nb_calls_month,
                     emission_total: res,
                   });
               })
@@ -118,6 +140,11 @@ class Dashboard extends Component {
               });
             }
           )
+          , 4000)
+    }
+
+    componentWillUnmount() {
+      clearInterval(this.interval);
     }
 
 render(){
@@ -129,20 +156,24 @@ render(){
     return (
     <div className="container" style={{padding: '0%'}}>
       <NavBar />
+      <Weather />
       <div className="inside">
         <div className="panel">
           {isLoaded &&
-          <Card emission={this.state.emission_total}/>
+          <Card emission={this.state.emission_total} nbCallMonth={this.state.nbCalls_month}/>
+          }
+          {!isLoaded &&
+          <h3 style={{textAlign:'center', color:'white'}}>Loading...</h3>
           }
         </div>
-        <div className="donut">
+        {/* <div className="donut">
           {isLoaded &&
             <Donut prix={[Math.round(this.state.emission_total.prix_train), Math.round(this.state.emission_total.prix_avion), Math.round(this.state.emission_total.prix_voiture)]}/>
           }
-        </div>
+        </div> */}
       </div>
       <div>
-      <h1 style={{padding: '10%', textAlign:'center'}}>Depuis sa mise en service ce terminal a permis d'effectuer : {this.state.nbCalls} appels</h1>
+      <h1 style={{padding:'5%', textAlign:'center', color:'white'}}>Depuis sa mise en service ce terminal a permis d'effectuer : {this.state.nbCalls} appels</h1>
       </div>
     </div>
     
